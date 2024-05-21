@@ -1,0 +1,33 @@
+# Builds and runs UTs on https://github.com/fprime-community/fprime-tutorial-hello-world
+
+name: "Tutorial: HelloWorld"
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.github/actions/spelling/**'
+      - '.github/ISSUE_TEMPLATE/**'
+
+jobs:
+  get-branch:
+    name: "Get target branch"
+    uses: ./.github/workflows/reusable-get-pr-branch.yml
+    with:
+      target_repository: fprime-community/fprime-tutorial-hello-world
+
+  run:
+    needs: get-branch
+    name: ""
+    uses: ./.github/workflows/reusable-project-builder.yml
+    with:
+      target_repository: fprime-community/fprime-tutorial-hello-world
+      build_location: HelloWorldDeployment
+      run_unit_tests: true
+      target_ref: ${{ needs.get-branch.outputs.target-branch }}
