@@ -31,4 +31,4 @@ set_target_properties(python_extension PROPERTIES
 )
 target_compile_options(python_extension PUBLIC "-fPIC")
 setup_executable_implementations(python_extension)
-#register_fprime_deployment()
+register_fprime_deployment()

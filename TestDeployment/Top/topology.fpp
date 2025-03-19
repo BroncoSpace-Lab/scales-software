@@ -44,6 +44,7 @@ module TestDeployment {
     
     instance pythonComponent
     instance standardBlankComponent
+    instance mLManager
 
     # ----------------------------------------------------------------------
     # Pattern graph specifiers

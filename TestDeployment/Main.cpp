@@ -49,7 +49,7 @@ static void signalHandler(int signum) {
  * @param argv: argument values supplied to program
  * @return: 0 on success, something else on failure
  */
-int fsw_main() {
+int main() {
     
     I32 option = 0;
     const CHAR* hostname = "127.0.0.1";
@@ -86,19 +86,16 @@ int fsw_main() {
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     (void)printf("Hit Ctrl-C to quit\n");
-    // FprimePy::FprimePython fprimePython = FprimePy::FprimePython();
-    // fprimePython.initialize();
     // std::cout << "Fprime Before SetupTopology" << std::endl;
     // Setup, cycle, and teardown topology
     TestDeployment::setupTopology(inputs);
 
     // TestDeployment::startSimulatedCycle(Fw::TimeInterval(1,0));  // Program loop cycling rate groups at 1Hz
     // TestDeployment::teardownTopology(inputs);
-    // // fprimePython.deinitalize();
     // (void)printf("Exiting...\n");
-    return 0;
+    // return 0;
 }
 
 PYBIND11_MODULE(python_extension, m) {
-    m.def("fsw_main", &fsw_main, "Entry point of the FSW");
+    m.def("main", &main, "Entry point of the FSW");
 }
