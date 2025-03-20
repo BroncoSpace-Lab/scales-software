@@ -11,7 +11,7 @@ else
 fi
 
 find ./Components/ -type f -name "*Component.py" | xargs cp -t $PYTHON_BUILD
-find ./Components/ -type f -name "*resnet_cifar100.py" | xargs cp -t $PYTHON_BUILD
+find ./Components/ -type f -name "*resnet*.py" | xargs cp -t $PYTHON_BUILD
 cp $BUILD_AUTOMATIC/fprime_pybind.py $PYTHON_BUILD
 
 cp $BUILD_AUTOMATIC/lib/Linux/libpython_extension.so $PYTHON_BUILD

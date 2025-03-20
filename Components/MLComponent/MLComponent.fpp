@@ -21,13 +21,18 @@ module Components {
             status: string size 254
         ) severity activity high format "Inference Path Set: {}"
         
-        async command INFERENCE_ONCE(
+        async command MULTI_INFERENCE(
             
         )
 
         event InferenceOutput(
-            status: string size 128
-        ) severity activity high format "This is an image of a {}"
+            path: string size 128
+            classification: string size 256
+        ) severity activity high format "{} is an image of a {}"
+
+        async command CLEAR_INFERENCE_PATH(
+
+        )
 
         ##############################################################################
         #### Uncomment the following examples to start customizing your component ####
