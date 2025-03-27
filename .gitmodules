@@ -4,3 +4,6 @@
 [submodule "fprime-python"]
 	path = fprime-python
 	url = git@github.com:fprime-community/fprime-python.git
+[submodule "Components/MLComponent/Scales-ML"]
+	path = Components/MLComponent/Scales-ML
+	url = git@github.com:BroncoSpace-Lab/Scales-ML.git
