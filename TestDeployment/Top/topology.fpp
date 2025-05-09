@@ -42,9 +42,10 @@ module TestDeployment {
     instance textLogger
     instance systemResources
     
-    instance pythonComponent
+    # instance pythonComponent
     instance standardBlankComponent
-    instance mLManager
+    # instance mLManager
+    instance lucidCamera
 
     # ----------------------------------------------------------------------
     # Pattern graph specifiers
