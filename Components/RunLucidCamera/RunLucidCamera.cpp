@@ -7,11 +7,8 @@
 #include "Components/RunLucidCamera/RunLucidCamera.hpp"
 #include "FpConfig.hpp"
 #include "ArenaApi.h"
-// #include "Libs/ArenaSDK/include/Arena/ArenaApi.h"
-// #include "stdafx.h"
 #include <stdio.h>
 #include "SaveApi.h"
-// #include "Libs/ArenaSDK/include/Save/SaveApi.h"
 
 #define TAB1 "  "
 
@@ -24,7 +21,7 @@
 
 // file name
 #define FILE_NAME "Components/RunLucidCamera/Images/image.png" //make parameter later
-//also change file location later
+//also change to make a new image each time and not just replace the previous one
 
 void SaveImage(Arena::IImage* pImage, const char* filename)
   {
