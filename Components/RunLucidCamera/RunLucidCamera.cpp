@@ -19,12 +19,15 @@
 // pixel format
 #define PIXEL_FORMAT BGR8
 
+#define EXPOSURE_TIME 5000.0
+
 // file name
 #define FILE_NAME "Components/RunLucidCamera/Images/image.png" //make parameter later
 //also change to make a new image each time and not just replace the previous one
 
 void SaveImage(Arena::IImage* pImage, const char* filename)
   {
+
     // convert image
     std::cout << TAB1 << "Convert image to " << GetPixelFormatName(PIXEL_FORMAT) << "\n";
 
@@ -222,7 +225,64 @@ Arena::IDevice* pDevice;
 
     // enable stream packet resend
     Arena::SetNodeValue<bool>(pDevice->GetTLStreamNodeMap(), "StreamPacketResendEnable", true);
+
     this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
   }
 
-// }
+  void Components::RunLucidCamera ::
+    SET_EXPOSURE_cmdHandler(
+        FwOpcodeType opCode,
+        U32 cmdSeq,
+        F64 param_name
+    )
+  {
+    // TODO
+    Arena::SetNodeValue<GenICam::gcstring>(
+      pDevice->GetNodeMap(),
+      "ExposureAuto",
+      "Off");
+
+    double exposureTime = param_name;
+
+    GenApi::CFloatPtr pExposureTime = pDevice->GetNodeMap()->GetNode("ExposureTime");
+
+    if (exposureTime < pExposureTime->GetMin())
+    {
+      exposureTime = pExposureTime->GetMin();
+    }
+  
+    if (exposureTime > pExposureTime->GetMax())
+    {
+      exposureTime = pExposureTime->GetMax();
+    }
+
+    pExposureTime->SetValue(exposureTime);
+
+    // std::string message = "Set Exposure Time" << exposureTime;
+    // F64 fswExposureTime = exposureTime;
+
+    // this->log_ACTIVITY_HI_DebugLogEvent(this->exposureTime);
+
+
+    this->cmdResponse_out(opCode, cmdSeq, Fw::CmdResponse::OK);
+  }
+
+  void Components::RunLucidCamera ::
+    SET_GAIN_cmdHandler(
+        FwOpcodeType opCode,
+        U32 cmdSeq,
+        F64 param_name
+    )
+  {
+
+    Arena::SetNodeValue<GenICam::gcstring>(
+      pDevice->GetNodeMap(),
+      "GainAuto",
+      "Off");
+
+    Arena::SetNodeValue<GenICam::gcstring>(pDevice->GetNodeMap(), "ConversionGain", "High");
+
+    this->log_ACTIVITY_HI_DebugLogEvent(Fw::LogStringArg("Set Gain To High"));
+  
+  }
+

@@ -11,6 +11,10 @@ module Components {
         
         event DebugLogEvent(message: string size 100) severity activity high id 0 format "{}"
 
+        async command SET_EXPOSURE(param_name: F64)
+
+        async command SET_GAIN(param_name: F64)
+
         ##############################################################################
         #### Uncomment the following examples to start customizing your component ####
         ##############################################################################

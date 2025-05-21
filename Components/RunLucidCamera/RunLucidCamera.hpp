@@ -48,6 +48,20 @@ namespace Components {
         FwOpcodeType opCode, //!< The opcode
         U32 cmdSeq //!< The command sequence number
       ) override;
+
+      //! Handler implementation for command SET_EXPOSURE
+      void SET_EXPOSURE_cmdHandler(
+        FwOpcodeType opCode, //!< The opcode
+        U32 cmdSeq, //!< The command sequence number
+        F64 param_name
+      ) override;
+
+      //! Handler implementation for command SET_GAIN
+      void SET_GAIN_cmdHandler(
+        FwOpcodeType opCode, //!< The opcode
+        U32 cmdSeq, //!< The command sequence number
+        F64 param_name
+      ) override;
   };
 
 }
