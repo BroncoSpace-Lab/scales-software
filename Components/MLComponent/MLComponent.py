@@ -60,6 +60,7 @@ class MLComponent(fprime_pybind.MLComponentBase):
                 
         except Exception as e:
             self.cmdResponse_out(opCode, cmdSeq, Fw.CmdResponse.COMMAND_EXECUTION_ERROR)
+            return
         
         if self.outputs:
             for file, classification in self.outputs:
