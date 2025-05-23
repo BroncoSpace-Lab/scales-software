@@ -9,6 +9,11 @@
 #include "ArenaApi.h"
 #include <stdio.h>
 #include "SaveApi.h"
+#include <string>
+#include <sstream>
+#include <iomanip>
+
+
 
 #define TAB1 "  "
 
@@ -22,8 +27,18 @@
 #define EXPOSURE_TIME 5000.0
 
 // file name
-#define FILE_NAME "Components/RunLucidCamera/Images/image.png" //make parameter later
+//#define FILE_NAME "Components/RunLucidCamera/Images/image.png" //make parameter later
 //also change to make a new image each time and not just replace the previous one
+
+
+// CREATE COUNTER FOR FILENAME
+static int imageCounter = 0;
+// function to gneerate fileName
+std::string generatefileName(){
+  std::ostringstream oss;
+  oss << "Components/RunLucidCamera/Images/image_" << std::setw(4) << std::setfill('0') << imageCounter++ << ".png";
+  return oss.str();
+}
 
 void SaveImage(Arena::IImage* pImage, const char* filename)
   {
@@ -156,7 +171,11 @@ Arena::IDevice* pDevice;
       Arena::IImage* pImage = pDevice->GetImage(2000);
 
       std::cout << "Commence example\n\n";
-      SaveImage(pImage, FILE_NAME);
+      //SaveImage(pImage, FILE_NAME);
+      std::string filename = generatefileName();
+      SaveImage(pImage, filename.c_str());
+      std::cout << "Saved Image to:" << filename << std::endl;
+
       std::cout << "\nExample complete\n";
 
       // clean up example

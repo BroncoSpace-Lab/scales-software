@@ -29,7 +29,7 @@ Svc::FprimeDeframing deframing;
 Svc::FprimeFraming hubFraming;
 Svc::FprimeDeframing hubDeframing;
 
-const char* REMOTE_HUIP_ADDRESS = "192.168.0.252";
+const char* REMOTE_HUIP_ADDRESS = "192.168.0.137";
 // const char* REMOTE_HUIP_ADDRESS = "127.0.0.1";
 const U32 REMOTE_HUPORT = 50500;
 
