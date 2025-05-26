@@ -1,12 +1,12 @@
 // ======================================================================
-// \title  TestDeploymentTopology.cpp
+// \title  CameraDeploymentTopology.cpp
 // \brief cpp file containing the topology instantiation code
 //
 // ======================================================================
 // Provides access to autocoded functions
-#include <TestDeployment/Top/TestDeploymentTopologyAc.hpp>
+#include <CameraDeployment/Top/CameraDeploymentTopologyAc.hpp>
 // Note: Uncomment when using Svc:TlmPacketizer
-//#include <TestDeployment/Top/TestDeploymentPacketsAc.hpp>
+//#include <CameraDeployment/Top/CameraDeploymentPacketsAc.hpp>
 
 // Necessary project-specified types
 #include <Fw/Types/MallocAllocator.hpp>
@@ -16,7 +16,7 @@
 #include <Os/Mutex.hpp>
 
 // Allows easy reference to objects in FPP/autocoder required namespaces
-using namespace TestDeployment;
+using namespace CameraDeployment;
 
 // The reference topology uses a malloc-based allocator for components that need to allocate memory during the
 // initialization phase.
@@ -26,6 +26,12 @@ Fw::MallocAllocator mallocator;
 // framing and deframing implementations.
 Svc::FprimeFraming framing;
 Svc::FprimeDeframing deframing;
+Svc::FprimeFraming hubFraming;
+Svc::FprimeDeframing hubDeframing;
+
+const char* REMOTE_HUIP_ADDRESS = "192.168.0.137";
+// const char* REMOTE_HUIP_ADDRESS = "127.0.0.1";
+const U32 REMOTE_HUPORT = 50500;
 
 Svc::ComQueue::QueueConfigurationTable configurationTable;
 
@@ -59,18 +65,18 @@ enum TopologyConstants {
 
 // Ping entries are autocoded, however; this code is not properly exported. Thus, it is copied here.
 Svc::Health::PingEntry pingEntries[] = {
-    {PingEntries::TestDeployment_blockDrv::WARN, PingEntries::TestDeployment_blockDrv::FATAL, "blockDrv"},
-    {PingEntries::TestDeployment_tlmSend::WARN, PingEntries::TestDeployment_tlmSend::FATAL, "chanTlm"},
-    {PingEntries::TestDeployment_cmdDisp::WARN, PingEntries::TestDeployment_cmdDisp::FATAL, "cmdDisp"},
-    {PingEntries::TestDeployment_cmdSeq::WARN, PingEntries::TestDeployment_cmdSeq::FATAL, "cmdSeq"},
-    {PingEntries::TestDeployment_eventLogger::WARN, PingEntries::TestDeployment_eventLogger::FATAL, "eventLogger"},
-    {PingEntries::TestDeployment_fileDownlink::WARN, PingEntries::TestDeployment_fileDownlink::FATAL, "fileDownlink"},
-    {PingEntries::TestDeployment_fileManager::WARN, PingEntries::TestDeployment_fileManager::FATAL, "fileManager"},
-    {PingEntries::TestDeployment_fileUplink::WARN, PingEntries::TestDeployment_fileUplink::FATAL, "fileUplink"},
-    {PingEntries::TestDeployment_prmDb::WARN, PingEntries::TestDeployment_prmDb::FATAL, "prmDb"},
-    {PingEntries::TestDeployment_rateGroup1::WARN, PingEntries::TestDeployment_rateGroup1::FATAL, "rateGroup1"},
-    {PingEntries::TestDeployment_rateGroup2::WARN, PingEntries::TestDeployment_rateGroup2::FATAL, "rateGroup2"},
-    {PingEntries::TestDeployment_rateGroup3::WARN, PingEntries::TestDeployment_rateGroup3::FATAL, "rateGroup3"},
+    {PingEntries::CameraDeployment_blockDrv::WARN, PingEntries::CameraDeployment_blockDrv::FATAL, "blockDrv"},
+    {PingEntries::CameraDeployment_tlmSend::WARN, PingEntries::CameraDeployment_tlmSend::FATAL, "chanTlm"},
+    {PingEntries::CameraDeployment_cmdDisp::WARN, PingEntries::CameraDeployment_cmdDisp::FATAL, "cmdDisp"},
+    {PingEntries::CameraDeployment_cmdSeq::WARN, PingEntries::CameraDeployment_cmdSeq::FATAL, "cmdSeq"},
+    {PingEntries::CameraDeployment_eventLogger::WARN, PingEntries::CameraDeployment_eventLogger::FATAL, "eventLogger"},
+    {PingEntries::CameraDeployment_fileDownlink::WARN, PingEntries::CameraDeployment_fileDownlink::FATAL, "fileDownlink"},
+    {PingEntries::CameraDeployment_fileManager::WARN, PingEntries::CameraDeployment_fileManager::FATAL, "fileManager"},
+    {PingEntries::CameraDeployment_fileUplink::WARN, PingEntries::CameraDeployment_fileUplink::FATAL, "fileUplink"},
+    {PingEntries::CameraDeployment_prmDb::WARN, PingEntries::CameraDeployment_prmDb::FATAL, "prmDb"},
+    {PingEntries::CameraDeployment_rateGroup1::WARN, PingEntries::CameraDeployment_rateGroup1::FATAL, "rateGroup1"},
+    {PingEntries::CameraDeployment_rateGroup2::WARN, PingEntries::CameraDeployment_rateGroup2::FATAL, "rateGroup2"},
+    {PingEntries::CameraDeployment_rateGroup3::WARN, PingEntries::CameraDeployment_rateGroup3::FATAL, "rateGroup3"},
 };
 
 /**
@@ -95,6 +101,8 @@ void configureTopology(const TopologyState& state) {
     // Framer and Deframer components need to be passed a protocol handler
     framer.setup(framing);
     deframer.setup(deframing);
+    hubFramer.setup(hubFraming);
+    hubDeframer.setup(hubDeframing);
 
     // Command sequencer needs to allocate memory to hold contents of command sequences
     cmdSeq.allocateBuffer(0, mallocator, CMD_SEQ_BUFFER_SIZE);
@@ -119,7 +127,7 @@ void configureTopology(const TopologyState& state) {
     health.setPingEntries(pingEntries, FW_NUM_ARRAY_ELEMENTS(pingEntries), HEALTH_WATCHDOG_CODE);
 
     // Note: Uncomment when using Svc:TlmPacketizer
-    // tlmSend.setPacketList(TestDeploymentPacketsPkts, TestDeploymentPacketsIgnore, 1);
+    // tlmSend.setPacketList(CameraDeploymentPacketsPkts, CameraDeploymentPacketsIgnore, 1);
 
     // Events (highest-priority)
     configurationTable.entries[0] = {.depth = 100, .priority = 0};
@@ -132,10 +140,13 @@ void configureTopology(const TopologyState& state) {
     if (state.hostname != nullptr && state.port != 0) {
         comDriver.configure(state.hostname, state.port);
     }
+
+
+
 }
 
-// Public functions for use in main program are namespaced with deployment name TestDeployment
-namespace TestDeployment {
+// Public functions for use in main program are namespaced with deployment name CameraDeployment
+namespace CameraDeployment {
 void setupTopology(const TopologyState& state) {
     // Autocoded initialization. Function provided by autocoder.
     initComponents(state);
@@ -154,11 +165,15 @@ void setupTopology(const TopologyState& state) {
     // Autocoded task kick-off (active components). Function provided by autocoder.
     startTasks(state);
     // Initialize socket communication if and only if there is a valid specification
-    if (state.hostname != nullptr && state.port != 0) {
-        Os::TaskString name("ReceiveTask");
-        // Uplink is configured for receive so a socket task is started
-        comDriver.start(name, COMM_PRIORITY, Default::STACK_SIZE);
-    }
+    // if (state.hostname != nullptr && state.port != 0) {
+    //     Os::TaskString name("ReceiveTask");
+    //     // Uplink is configured for receive so a socket task is started
+    //     comDriver.start(name, COMM_PRIORITY, Default::STACK_SIZE);
+    // }    
+    
+    hubComDriver.configure(REMOTE_HUIP_ADDRESS, REMOTE_HUPORT);
+    Os::TaskString hubName("hub");
+    hubComDriver.start(hubName, COMM_PRIORITY, Default::STACK_SIZE);
 }
 
 // Variables used for cycle simulation
@@ -172,7 +187,7 @@ void startSimulatedCycle(Fw::TimeInterval interval) {
 
     // Main loop
     while (cycling) {
-        TestDeployment::blockDrv.callIsr();
+        CameraDeployment::blockDrv.callIsr();
         Os::Task::delay(interval);
 
         cycleLock.lock();
@@ -195,9 +210,11 @@ void teardownTopology(const TopologyState& state) {
     // Other task clean-up.
     comDriver.stop();
     (void)comDriver.join();
+    hubComDriver.stop();
+    (void)hubComDriver.join();
 
     // Resource deallocation
     cmdSeq.deallocateBuffer(mallocator);
     bufferManager.cleanup();
 }
-};  // namespace TestDeployment
+};  // namespace CameraDeployment

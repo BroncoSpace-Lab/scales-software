@@ -1,4 +1,4 @@
-module TestDeployment {
+module CameraDeployment {
 
   # ----------------------------------------------------------------------
   # Symbolic constants for port numbers
@@ -10,7 +10,7 @@ module TestDeployment {
     rateGroup3
   }
 
-  topology TestDeployment {
+  topology CameraDeployment {
 
     # ----------------------------------------------------------------------
     # Instances used in the topology
@@ -33,7 +33,7 @@ module TestDeployment {
     instance fileUplink
     instance bufferManager
     instance framer
-    instance posixTime
+    instance chronoTime
     instance prmDb
     instance rateGroup1
     instance rateGroup2
@@ -41,10 +41,12 @@ module TestDeployment {
     instance rateGroupDriver
     instance textLogger
     instance systemResources
-    
-    # instance pythonComponent
-    instance standardBlankComponent
-    # instance mLManager
+
+    instance hub
+    instance hubComDriver
+    instance hubDeframer
+    instance hubFramer
+
     instance lucidCamera
 
     # ----------------------------------------------------------------------
@@ -53,15 +55,15 @@ module TestDeployment {
 
     command connections instance cmdDisp
 
-    event connections instance eventLogger
+    event connections instance hub
 
     param connections instance prmDb
 
-    telemetry connections instance tlmSend
+    telemetry connections instance hub
 
     text event connections instance textLogger
 
-    time connections instance posixTime
+    time connections instance chronoTime
 
     health connections instance $health
 
@@ -101,13 +103,13 @@ module TestDeployment {
 
       # Rate group 1
       rateGroupDriver.CycleOut[Ports_RateGroups.rateGroup1] -> rateGroup1.CycleIn
-      rateGroup1.RateGroupMemberOut[0] -> tlmSend.Run
+      # rateGroup1.RateGroupMemberOut[0] -> tlmSend.Run
       rateGroup1.RateGroupMemberOut[1] -> fileDownlink.Run
       rateGroup1.RateGroupMemberOut[2] -> systemResources.run
 
       # Rate group 2
       rateGroupDriver.CycleOut[Ports_RateGroups.rateGroup2] -> rateGroup2.CycleIn
-      rateGroup2.RateGroupMemberOut[0] -> cmdSeq.schedIn
+      # rateGroup2.RateGroupMemberOut[0] -> cmdSeq.schedIn
 
       # Rate group 3
       rateGroupDriver.CycleOut[Ports_RateGroups.rateGroup3] -> rateGroup3.CycleIn
@@ -116,10 +118,10 @@ module TestDeployment {
       rateGroup3.RateGroupMemberOut[2] -> bufferManager.schedIn
     }
 
-    connections Sequencer {
-      cmdSeq.comCmdOut -> cmdDisp.seqCmdBuff
-      cmdDisp.seqCmdStatus -> cmdSeq.cmdResponseIn
-    }
+    # connections Sequencer {
+    #   cmdSeq.comCmdOut -> cmdDisp.seqCmdBuff
+    #   cmdDisp.seqCmdStatus -> cmdSeq.cmdResponseIn
+    # }
 
     connections Uplink {
 
@@ -138,10 +140,39 @@ module TestDeployment {
       fileUplink.bufferSendOut -> bufferManager.bufferSendIn
     }
 
-    connections TestDeployment {
+    connections CameraDeployment {
       # Add here connections to user-defined components
     }
 
+    connections send_hub {
+      hub.dataOut -> hubFramer.bufferIn
+      hub.dataOutAllocate -> bufferManager.bufferGetCallee
+      
+      hubFramer.framedOut -> hubComDriver.$send
+      hubFramer.bufferDeallocate -> bufferManager.bufferSendIn
+      hubFramer.framedAllocate -> bufferManager.bufferGetCallee
+      
+      hubComDriver.deallocate -> bufferManager.bufferSendIn
+    }
+
+    connections recv_hub {
+      hubComDriver.$recv -> hubDeframer.framedIn
+      hubComDriver.allocate -> bufferManager.bufferGetCallee
+
+      hubDeframer.bufferOut -> hub.dataIn
+      hubDeframer.bufferAllocate -> bufferManager.bufferGetCallee
+      hubDeframer.framedDeallocate -> bufferManager.bufferSendIn
+
+      hub.dataInDeallocate -> bufferManager.bufferSendIn
+    }
+
+    connections hub {
+      hub.portOut[0] -> cmdDisp.seqCmdBuff
+      
+      cmdDisp.seqCmdStatus -> hub.portIn[0]
+
+      hub.buffersOut -> bufferManager.bufferSendIn
+    }
   }
 
 }

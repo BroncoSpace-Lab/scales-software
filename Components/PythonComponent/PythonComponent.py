@@ -23,7 +23,7 @@ class PythonComponent(fprime_pybind.PythonComponentBase):
     
     def SAY_HELLO_cmdHandler(self, opCode, cmdSeq, greeting):
         """ Command handler for SAY_HELLO """
-        eventGreeting = Fw.LogStringArg(greeting + "editfprime")
+        eventGreeting = Fw.LogStringArg(greeting)
         self.log_ACTIVITY_HI_Hello(eventGreeting)
         
         self.m_greetingCount += 1
