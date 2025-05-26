@@ -97,6 +97,16 @@ module TestDeployment {
     stack size Default.STACK_SIZE \
     priority 99
 
+  instance mLManager: Components.MLComponent base id 0x1300 \
+    queue size Default.QUEUE_SIZE \
+    stack size Default.STACK_SIZE \
+    priority 99
+
+  instance lucidCamera: Components.RunLucidCamera base id 0x1400 \
+    queue size Default.QUEUE_SIZE \
+    stack size Default.STACK_SIZE \
+    priority 99
+
   # ----------------------------------------------------------------------
   # Queued component instances
   # ----------------------------------------------------------------------

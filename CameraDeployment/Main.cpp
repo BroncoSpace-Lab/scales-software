@@ -4,7 +4,7 @@
 //
 // ======================================================================
 // Used to access topology functions
-#include <TestDeployment/Top/TestDeploymentTopology.hpp>
+#include <CameraDeployment/Top/CameraDeploymentTopology.hpp>
 // OSAL initialization
 #include <Os/Os.hpp>
 // Used for signal handling shutdown
@@ -14,8 +14,6 @@
 // Used for printf functions
 #include <cstdlib>
 
-// #include <fprime-python/FprimePy/FprimePy.hpp>
-#include <pybind11/pybind11.h>
 /**
  * \brief print command line help message
  *
@@ -36,7 +34,7 @@ void print_usage(const char* app) {
  * @param signum
  */
 static void signalHandler(int signum) {
-    TestDeployment::stopSimulatedCycle();
+    CameraDeployment::stopSimulatedCycle();
 }
 
 /**
@@ -49,36 +47,35 @@ static void signalHandler(int signum) {
  * @param argv: argument values supplied to program
  * @return: 0 on success, something else on failure
  */
-int main() {
-    
+int main(int argc, char* argv[]) {
     I32 option = 0;
-    const CHAR* hostname = "127.0.0.1";
-    U16 port_number = 50000;
+    CHAR* hostname = nullptr;
+    U16 port_number = 0;
     Os::init();
-    
-    // // Loop while reading the getopt supplied options
-    // while ((option = getopt(argc, argv, "hp:a:")) != -1) {
-    //     switch (option) {
-    //         // Handle the -a argument for address/hostname
-    //         case 'a':
-    //             hostname = optarg;
-    //             break;
-    //         // Handle the -p port number argument
-    //         case 'p':
-    //             port_number = static_cast<U16>(atoi(optarg));
-    //             break;
-    //         // Cascade intended: help output
-    //         case 'h':
-    //         // Cascade intended: help output
-    //         case '?':
-    //         // Default case: output help and exit
-    //         default:
-    //             print_usage(argv[0]);
-    //             return (option == 'h') ? 0 : 1;
-    //     }
-    //}
+
+    // Loop while reading the getopt supplied options
+    while ((option = getopt(argc, argv, "hp:a:")) != -1) {
+        switch (option) {
+            // Handle the -a argument for address/hostname
+            case 'a':
+                hostname = optarg;
+                break;
+            // Handle the -p port number argument
+            case 'p':
+                port_number = static_cast<U16>(atoi(optarg));
+                break;
+            // Cascade intended: help output
+            case 'h':
+            // Cascade intended: help output
+            case '?':
+            // Default case: output help and exit
+            default:
+                print_usage(argv[0]);
+                return (option == 'h') ? 0 : 1;
+        }
+    }
     // Object for communicating state to the reference topology
-    TestDeployment::TopologyState inputs;
+    CameraDeployment::TopologyState inputs;
     inputs.hostname = hostname;
     inputs.port = port_number;
 
@@ -86,16 +83,11 @@ int main() {
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     (void)printf("Hit Ctrl-C to quit\n");
-    // std::cout << "Fprime Before SetupTopology" << std::endl;
+
     // Setup, cycle, and teardown topology
-    TestDeployment::setupTopology(inputs);
-
-    TestDeployment::startSimulatedCycle(Fw::TimeInterval(1,0));  // Program loop cycling rate groups at 1Hz
-    // TestDeployment::teardownTopology(inputs);
-    // (void)printf("Exiting...\n");
-    // return 0;
-}
-
-PYBIND11_MODULE(python_extension, m) {
-    m.def("main", &main, "Entry point of the FSW");
+    CameraDeployment::setupTopology(inputs);
+    CameraDeployment::startSimulatedCycle(Fw::TimeInterval(1,0));  // Program loop cycling rate groups at 1Hz
+    CameraDeployment::teardownTopology(inputs);
+    (void)printf("Exiting...\n");
+    return 0;
 }
