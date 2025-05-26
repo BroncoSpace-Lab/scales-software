@@ -1,4 +1,3 @@
-
 ---
 name: New Feature Issue Template
 about: Recommend a new feature
