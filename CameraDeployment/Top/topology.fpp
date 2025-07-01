@@ -48,6 +48,7 @@ module CameraDeployment {
     instance hubFramer
 
     instance lucidCamera
+    instance mlManager
 
     # ----------------------------------------------------------------------
     # Pattern graph specifiers

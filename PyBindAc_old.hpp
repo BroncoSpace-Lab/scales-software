@@ -6,7 +6,11 @@
 
 #include <build-fprime-automatic-native/Components/MLComponent/MLComponentComponentAc.hpp>
 
+<<<<<<< HEAD:PyBindAc.hpp
 //#include <build-fprime-automatic-native/Components/PythonComponent/PythonComponentComponentAc.hpp>
+=======
+#include <build-fprime-automatic-native/Components/PythonComponent/PythonComponentComponentAc.hpp>
+>>>>>>> 94fd148 (Python working with CameraDeployment):PyBindAc_old.hpp
 
 #include <Fw/Cmd/CmdString.hpp>
 

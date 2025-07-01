@@ -29,7 +29,7 @@ Svc::FprimeDeframing deframing;
 Svc::FprimeFraming hubFraming;
 Svc::FprimeDeframing hubDeframing;
 
-const char* REMOTE_HUIP_ADDRESS = "192.168.0.137";
+const char* REMOTE_HUIP_ADDRESS = "192.168.0.66";
 // const char* REMOTE_HUIP_ADDRESS = "127.0.0.1";
 const U32 REMOTE_HUPORT = 50500;
 
@@ -165,11 +165,11 @@ void setupTopology(const TopologyState& state) {
     // Autocoded task kick-off (active components). Function provided by autocoder.
     startTasks(state);
     // Initialize socket communication if and only if there is a valid specification
-    // if (state.hostname != nullptr && state.port != 0) {
-    //     Os::TaskString name("ReceiveTask");
-    //     // Uplink is configured for receive so a socket task is started
-    //     comDriver.start(name, COMM_PRIORITY, Default::STACK_SIZE);
-    // }    
+    if (state.hostname != nullptr && state.port != 0) {
+        Os::TaskString name("ReceiveTask");
+        // Uplink is configured for receive so a socket task is started
+        comDriver.start(name, COMM_PRIORITY, Default::STACK_SIZE);
+    }    
     
     hubComDriver.configure(REMOTE_HUIP_ADDRESS, REMOTE_HUPORT);
     Os::TaskString hubName("hub");
